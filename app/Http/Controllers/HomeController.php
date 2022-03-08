@@ -13,7 +13,6 @@ class HomeController extends Controller
         $topUsersData = Collection::make();
 
         User::query()
-            ->with('posts')
             ->whereHas('posts', fn (Builder $query) => $query->where('created_at', '>=', now()->subWeek()), '>=', 10)
             ->chunk(1000, fn (Collection $users) => $users->each(
                 fn (User $user) => $topUsersData->push([
@@ -23,6 +22,6 @@ class HomeController extends Controller
                 ])
             ));
 
-        return response()->json($topUsersData);
+        return response()->json();
     }
 }

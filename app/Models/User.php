@@ -38,6 +38,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['posts'];
+
     /*
     |--------------------------------------------------------------------------
     | Eloquent Model Relationships
