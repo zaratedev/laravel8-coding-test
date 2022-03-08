@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
 
 class HomeController extends Controller
 {
@@ -13,15 +14,17 @@ class HomeController extends Controller
         $topUsersData = Collection::make();
 
         User::query()
-            ->whereHas('posts', fn (Builder $query) => $query->where('created_at', '>=', now()->subWeek()), '>=', 10)
+            ->topUsers()
             ->chunk(1000, fn (Collection $users) => $users->each(
-                fn (User $user) => $topUsersData->push([
-                    'username' => $user->username,
-                    'total_posts_count' => $user->posts->count(),
-                    'last_post_title' => $user->posts->last()->title,
-                ])
+                fn (User $user) => Bus::dispatch(new SaveTopUsersJob($user))
             ));
 
-        return response()->json();
+        return response()->json($topUsersData);
     }
 }
+
+// $topUsersData->push([
+//     'username' => $user->username,
+//     'total_posts_count' => $user->posts->count(),
+//     'last_post_title' => $user->posts->last()->title,
+// ])
